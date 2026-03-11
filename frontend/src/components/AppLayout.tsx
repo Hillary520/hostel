@@ -28,6 +28,7 @@ const navByRole: Record<string, NavItem[]> = {
     { label: 'Users', to: '/portal/admin/users' },
     { label: 'Students', to: '/portal/admin/students' },
     { label: 'Hostels', to: '/portal/admin/hostels' },
+    { label: 'Applications', to: '/portal/admin/applications' },
     { label: 'Payments', to: '/portal/admin/payments' },
     { label: 'Rooms', to: '/portal/admin/rooms' },
     { label: 'Reports', to: '/portal/admin/reports' },

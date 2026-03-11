@@ -1,7 +1,8 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 
 from accounts.permissions import IsAdminOrManager
+from config.constants import ROLE_STUDENT
 from .models import Bed, Hostel, Room, RoomType
 from .serializers import BedSerializer, HostelSerializer, RoomSerializer, RoomTypeSerializer
 
@@ -13,6 +14,17 @@ class HostelViewSet(viewsets.ModelViewSet):
     filterset_fields = ["sex_restriction", "active", "manager"]
     search_fields = ["code", "name"]
     ordering_fields = ["created_at", "code", "name"]
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), IsAdminOrManager()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if getattr(self.request.user, "role", None) == ROLE_STUDENT:
+            return qs.filter(active=True)
+        return qs
 
 
 class RoomTypeViewSet(viewsets.ModelViewSet):

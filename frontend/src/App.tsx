@@ -52,6 +52,7 @@ export default function App() {
         <Route path="/portal/admin/users" element={<AdminUsersPage />} />
         <Route path="/portal/admin/students" element={<AdminStudentsPage />} />
         <Route path="/portal/admin/hostels" element={<AdminHostelsPage />} />
+        <Route path="/portal/admin/applications" element={<ManagerApplicationsPage />} />
         <Route path="/portal/admin/payments" element={<AdminPaymentsPage />} />
         <Route path="/portal/admin/rooms" element={<AdminRoomsPage />} />
         <Route path="/portal/admin/reports" element={<AdminReportsPage />} />

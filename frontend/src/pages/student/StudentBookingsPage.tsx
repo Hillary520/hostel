@@ -8,11 +8,24 @@ import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
 import type { BookingApplication } from '../../types'
 
+interface HostelOption {
+  id: number
+  code: string
+  name: string
+  sex_restriction: string
+}
+
 export function StudentBookingsPage() {
   const [term, setTerm] = useState('2026-S1')
+  const [preferredHostel, setPreferredHostel] = useState('')
   const [error, setError] = useState('')
   const [openCreateModal, setOpenCreateModal] = useState(false)
   const qc = useQueryClient()
+
+  const hostelsQuery = useQuery({
+    queryKey: ['student-hostels'],
+    queryFn: async () => asList<HostelOption>((await api.get('/hostels/?active=true')).data),
+  })
 
   const bookingsQuery = useQuery({
     queryKey: ['student-bookings'],
@@ -20,7 +33,11 @@ export function StudentBookingsPage() {
   })
 
   const createMutation = useMutation({
-    mutationFn: async () => api.post('/bookings/', { academic_term: term }),
+    mutationFn: async () =>
+      api.post('/bookings/', {
+        academic_term: term,
+        preferred_hostel: preferredHostel ? Number(preferredHostel) : null,
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['student-bookings'] })
       setOpenCreateModal(false)
@@ -39,8 +56,14 @@ export function StudentBookingsPage() {
       setError('Academic term is required')
       return
     }
+    if (preferredHostel && Number.isNaN(Number(preferredHostel))) {
+      setError('Select a valid hostel')
+      return
+    }
     createMutation.mutate()
   }
+
+  const hostelById = new Map(hostelsQuery.data?.map((hostel) => [hostel.id, hostel]) || [])
 
   return (
     <AppLayout title="My Bookings">
@@ -58,13 +81,18 @@ export function StudentBookingsPage() {
         {bookingsQuery.isLoading ? <p>Loading...</p> : null}
         <table>
           <thead>
-            <tr><th>ID</th><th>Term</th><th>Status</th><th>Action</th></tr>
+            <tr><th>ID</th><th>Term</th><th>Preferred hostel</th><th>Status</th><th>Action</th></tr>
           </thead>
           <tbody>
             {bookingsQuery.data?.map((booking) => (
               <tr key={booking.id}>
                 <td>{booking.id}</td>
                 <td>{booking.academic_term}</td>
+                <td>
+                  {booking.preferred_hostel
+                    ? `${hostelById.get(booking.preferred_hostel)?.code ?? 'Hostel'}`
+                    : 'Any'}
+                </td>
                 <td>{booking.status}</td>
                 <td>
                   <button
@@ -87,6 +115,17 @@ export function StudentBookingsPage() {
           <label>
             Academic term
             <input value={term} onChange={(e) => setTerm(e.target.value)} />
+          </label>
+          <label>
+            Preferred hostel
+            <select value={preferredHostel} onChange={(e) => setPreferredHostel(e.target.value)}>
+              <option value="">Any hostel</option>
+              {hostelsQuery.data?.map((hostel) => (
+                <option key={hostel.id} value={hostel.id}>
+                  {hostel.code} · {hostel.name}
+                </option>
+              ))}
+            </select>
           </label>
           {error ? <p className="error">{error}</p> : null}
           <div className="modal-actions">

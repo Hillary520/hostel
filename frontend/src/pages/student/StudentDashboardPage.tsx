@@ -2,15 +2,26 @@ import { useQuery } from '@tanstack/react-query'
 
 import { AppLayout } from '../../components/AppLayout'
 import { api } from '../../lib/api'
+import { asList } from '../../lib/apiData'
+import type { Allocation, BookingApplication, Invoice } from '../../types'
 
 export function StudentDashboardPage() {
-  const bookings = useQuery({ queryKey: ['student-bookings'], queryFn: async () => (await api.get('/bookings/')).data })
-  const allocations = useQuery({ queryKey: ['student-allocations'], queryFn: async () => (await api.get('/allocations/')).data })
-  const invoices = useQuery({ queryKey: ['student-invoices'], queryFn: async () => (await api.get('/invoices/')).data })
+  const bookings = useQuery({
+    queryKey: ['student-bookings'],
+    queryFn: async () => asList<BookingApplication>((await api.get('/bookings/')).data),
+  })
+  const allocations = useQuery({
+    queryKey: ['student-allocations'],
+    queryFn: async () => asList<Allocation>((await api.get('/allocations/')).data),
+  })
+  const invoices = useQuery({
+    queryKey: ['student-invoices'],
+    queryFn: async () => asList<Invoice>((await api.get('/invoices/')).data),
+  })
 
-  const bookingCount = bookings.data?.results?.length ?? 0
-  const allocationCount = allocations.data?.results?.length ?? 0
-  const invoiceCount = invoices.data?.results?.length ?? 0
+  const bookingCount = bookings.data?.length ?? 0
+  const allocationCount = allocations.data?.length ?? 0
+  const invoiceCount = invoices.data?.length ?? 0
 
   return (
     <AppLayout title="Student Dashboard">
