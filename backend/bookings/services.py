@@ -43,13 +43,19 @@ def approve_booking(*, application: BookingApplication, reviewer, bed_id: int, c
     if locked_application.status not in [BookingApplication.Status.SUBMITTED, BookingApplication.Status.UNDER_REVIEW]:
         raise serializers.ValidationError("Only submitted/under-review bookings can be approved")
 
-    bed = Bed.objects.select_for_update().select_related("room").get(pk=bed_id)
+    try:
+        bed = Bed.objects.select_for_update().select_related("room").get(pk=bed_id)
+    except Bed.DoesNotExist as exc:
+        raise serializers.ValidationError({"bed": "Bed not found"}) from exc
     if bed.status == Bed.Status.OUT_OF_SERVICE:
         raise serializers.ValidationError("Cannot allocate out-of-service bed")
     if bed.status in [Bed.Status.RESERVED, Bed.Status.OCCUPIED]:
         raise serializers.ValidationError("Bed is not available")
 
-    room = Room.objects.select_for_update().get(pk=bed.room_id)
+    try:
+        room = Room.objects.select_for_update().get(pk=bed.room_id)
+    except Room.DoesNotExist as exc:
+        raise serializers.ValidationError({"bed": "Bed is not attached to an active room"}) from exc
     if room.status != Room.Status.ACTIVE:
         raise serializers.ValidationError("Cannot allocate a bed from an inactive/maintenance room")
 

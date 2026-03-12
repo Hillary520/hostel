@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -19,7 +20,9 @@ export function StudentBookingsPage() {
   const [term, setTerm] = useState('2026-S1')
   const [preferredHostel, setPreferredHostel] = useState('')
   const [error, setError] = useState('')
+  const [submitError, setSubmitError] = useState('')
   const [openCreateModal, setOpenCreateModal] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState<BookingApplication | null>(null)
   const qc = useQueryClient()
 
   const hostelsQuery = useQuery({
@@ -41,12 +44,23 @@ export function StudentBookingsPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['student-bookings'] })
       setOpenCreateModal(false)
+      setError('')
+    },
+    onError: (err) => {
+      setError(extractErrorMessage(err, 'Unable to create booking. Please try again.'))
     },
   })
 
   const submitMutation = useMutation({
     mutationFn: async (id: number) => api.post(`/bookings/${id}/submit/`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['student-bookings'] }),
+    onMutate: () => setSubmitError(''),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student-bookings'] })
+      setSubmitError('')
+    },
+    onError: (err) => {
+      setSubmitError(extractErrorMessage(err, 'Unable to submit booking. Please try again.'))
+    },
   })
 
   function handleCreate(e: FormEvent) {
@@ -78,6 +92,7 @@ export function StudentBookingsPage() {
       </section>
 
       <section className="card">
+        {submitError ? <p className="error">{submitError}</p> : null}
         {bookingsQuery.isLoading ? <p>Loading...</p> : null}
         <table>
           <thead>
@@ -85,7 +100,7 @@ export function StudentBookingsPage() {
           </thead>
           <tbody>
             {bookingsQuery.data?.map((booking) => (
-              <tr key={booking.id}>
+              <tr key={booking.id} className="row-clickable" onClick={() => setSelectedBooking(booking)}>
                 <td>{booking.id}</td>
                 <td>{booking.academic_term}</td>
                 <td>
@@ -99,7 +114,10 @@ export function StudentBookingsPage() {
                     className="btn btn-ghost"
                     type="button"
                     disabled={booking.status !== 'DRAFT' || submitMutation.isPending}
-                    onClick={() => submitMutation.mutate(booking.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      submitMutation.mutate(booking.id)
+                    }}
                   >
                     Submit
                   </button>
@@ -138,6 +156,46 @@ export function StudentBookingsPage() {
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedBooking !== null}
+        title={selectedBooking ? `Booking ${selectedBooking.id}` : 'Booking Details'}
+        onClose={() => setSelectedBooking(null)}
+        sections={[
+          {
+            title: 'Booking',
+            items: [
+              { label: 'Booking ID', value: selectedBooking?.id },
+              { label: 'Term', value: selectedBooking?.academic_term },
+              { label: 'Status', value: selectedBooking?.status },
+              {
+                label: 'Preferred hostel',
+                value: selectedBooking?.preferred_hostel
+                  ? hostelById.get(selectedBooking.preferred_hostel)?.code ?? selectedBooking.preferred_hostel
+                  : 'Any',
+              },
+              { label: 'Submitted at', value: selectedBooking?.submitted_at ?? '—' },
+              { label: 'Created at', value: selectedBooking?.created_at },
+            ],
+          },
+        ]}
+      />
     </AppLayout>
   )
+}
+
+function extractErrorMessage(error: unknown, fallback: string) {
+  if (!error) return fallback
+  if (typeof error === 'string') return error
+  const message = (error as { message?: string }).message
+  if (message) return message
+  const data = (error as { response?: { data?: unknown } }).response?.data
+  if (typeof data === 'string') return data
+  if (data && typeof data === 'object') {
+    const detail = (data as { detail?: string | string[] }).detail
+    if (detail) return Array.isArray(detail) ? detail.join(', ') : detail
+    const nonField = (data as { non_field_errors?: string[] }).non_field_errors
+    if (nonField?.length) return nonField.join(', ')
+  }
+  return fallback
 }

@@ -41,10 +41,18 @@ describe('Workflow UI paths', () => {
   })
 
   it('submits student booking form', async () => {
-    vi.mocked(api.get).mockResolvedValue({
-      data: {
-        results: [{ id: 1, student: 1, academic_term: '2026-S1', status: 'DRAFT', created_at: '2026-01-01' }],
-      },
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/bookings/') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 1, student: 1, academic_term: '2026-S1', status: 'DRAFT', created_at: '2026-01-01' }],
+          },
+        })
+      }
+      if (url === '/hostels/?active=true') {
+        return Promise.resolve({ data: { results: [] } })
+      }
+      return Promise.resolve({ data: { results: [] } })
     })
     vi.mocked(api.post).mockResolvedValue({ data: {} })
 
@@ -62,17 +70,51 @@ describe('Workflow UI paths', () => {
       user: { role: 'HOSTEL_MANAGER', full_name: 'Manager User' },
       logout: vi.fn(),
     })
-    vi.mocked(api.get).mockResolvedValue({
-      data: {
-        results: [{ id: 2, student: 10, academic_term: '2026-S1', status: 'SUBMITTED', created_at: '2026-01-01' }],
-      },
+    vi.mocked(api.get).mockImplementation((url) => {
+      if (url === '/bookings/?status=SUBMITTED') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 2, student: 10, academic_term: '2026-S1', status: 'SUBMITTED', created_at: '2026-01-01' }],
+          },
+        })
+      }
+      if (url === '/rooms/?status=ACTIVE') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 1, room_no: 'A1', status: 'ACTIVE' }],
+          },
+        })
+      }
+      if (url === '/beds/?status=AVAILABLE') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 9, room: 1, bed_no: '1', status: 'AVAILABLE' }],
+          },
+        })
+      }
+      if (url === '/hostels/') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 1, code: 'H1', name: 'Hostel 1' }],
+          },
+        })
+      }
+      if (url === '/room-types/') {
+        return Promise.resolve({
+          data: {
+            results: [{ id: 1, code: 'STD', name: 'Standard' }],
+          },
+        })
+      }
+      return Promise.resolve({ data: { results: [] } })
     })
     vi.mocked(api.post).mockResolvedValue({ data: {} })
 
     renderWithProviders(<ManagerApplicationsPage />)
 
     fireEvent.click(await screen.findByRole('button', { name: 'Approve' }))
-    fireEvent.change(await screen.findByLabelText('Bed ID'), { target: { value: '9' } })
+    fireEvent.change(await screen.findByLabelText('Room'), { target: { value: '1' } })
+    fireEvent.change(await screen.findByLabelText('Bed'), { target: { value: '9' } })
     fireEvent.click(screen.getByRole('button', { name: 'Approve booking' }))
 
     await waitFor(() => {

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -20,6 +21,7 @@ export function ManagerMaintenancePage() {
   const [category, setCategory] = useState('Electrical')
   const [description, setDescription] = useState('')
   const [openTicketModal, setOpenTicketModal] = useState(false)
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
 
   const tickets = useQuery({
     queryKey: ['maintenance-tickets'],
@@ -57,7 +59,7 @@ export function ManagerMaintenancePage() {
           <thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Status</th><th>Description</th></tr></thead>
           <tbody>
             {tickets.data?.map((ticket) => (
-              <tr key={ticket.id}>
+              <tr key={ticket.id} className="row-clickable" onClick={() => setSelectedTicket(ticket)}>
                 <td>{ticket.id}</td><td>{ticket.category}</td><td>{ticket.priority}</td><td>{ticket.status}</td><td>{ticket.description}</td>
               </tr>
             ))}
@@ -85,6 +87,24 @@ export function ManagerMaintenancePage() {
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedTicket !== null}
+        title={selectedTicket ? `Ticket ${selectedTicket.id}` : 'Ticket Details'}
+        onClose={() => setSelectedTicket(null)}
+        sections={[
+          {
+            title: 'Ticket',
+            items: [
+              { label: 'Ticket ID', value: selectedTicket?.id },
+              { label: 'Category', value: selectedTicket?.category },
+              { label: 'Priority', value: selectedTicket?.priority },
+              { label: 'Status', value: selectedTicket?.status },
+              { label: 'Description', value: selectedTicket?.description },
+            ],
+          },
+        ]}
+      />
     </AppLayout>
   )
 }

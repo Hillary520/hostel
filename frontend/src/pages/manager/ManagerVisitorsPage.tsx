@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -16,12 +17,29 @@ interface VisitorLog {
   check_in: string
 }
 
+interface AllocationOption {
+  id: number
+  student: number
+  bed: number
+  status: string
+}
+
 export function ManagerVisitorsPage() {
   const qc = useQueryClient()
   const [form, setForm] = useState({ allocation: '', visitor_name: '', id_number: '', phone: '' })
   const [openVisitorModal, setOpenVisitorModal] = useState(false)
+  const [selectedLog, setSelectedLog] = useState<VisitorLog | null>(null)
 
   const logs = useQuery({ queryKey: ['visitors'], queryFn: async () => asList<VisitorLog>((await api.get('/visitors/')).data) })
+  const allocations = useQuery({
+    queryKey: ['manager-allocations', 'active'],
+    queryFn: async () => asList<AllocationOption>((await api.get('/allocations/?status=ACTIVE')).data),
+  })
+
+  const allocationsById = useMemo(
+    () => new Map(allocations.data?.map((allocation) => [allocation.id, allocation]) ?? []),
+    [allocations.data]
+  )
 
   const create = useMutation({
     mutationFn: async () =>
@@ -59,7 +77,12 @@ export function ManagerVisitorsPage() {
           <thead><tr><th>ID</th><th>Name</th><th>Allocation</th><th>Check-in</th></tr></thead>
           <tbody>
             {logs.data?.map((log) => (
-              <tr key={log.id}><td>{log.id}</td><td>{log.visitor_name}</td><td>{log.allocation}</td><td>{log.check_in}</td></tr>
+              <tr key={log.id} className="row-clickable" onClick={() => setSelectedLog(log)}>
+                <td>{log.id}</td>
+                <td>{log.visitor_name}</td>
+                <td>{log.allocation}</td>
+                <td>{log.check_in}</td>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -68,8 +91,15 @@ export function ManagerVisitorsPage() {
       <Modal open={openVisitorModal} title="Add Visitor" onClose={() => setOpenVisitorModal(false)}>
         <form onSubmit={onSubmit}>
           <label>
-            Allocation ID
-            <input value={form.allocation} onChange={(e) => setForm({ ...form, allocation: e.target.value })} />
+            Allocation
+            <select value={form.allocation} onChange={(e) => setForm({ ...form, allocation: e.target.value })}>
+              <option value="">Select allocation</option>
+              {allocations.data?.map((allocation) => (
+                <option key={allocation.id} value={allocation.id}>
+                  Allocation {allocation.id} · Student {allocation.student} · Bed {allocation.bed}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             Visitor name
@@ -87,12 +117,37 @@ export function ManagerVisitorsPage() {
             <button className="btn btn-ghost" type="button" onClick={() => setOpenVisitorModal(false)}>
               Cancel
             </button>
-            <button className="btn btn-solid" type="submit" disabled={create.isPending}>
+            <button className="btn btn-solid" type="submit" disabled={create.isPending || !form.allocation}>
               Save visitor
             </button>
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedLog !== null}
+        title={selectedLog ? `Visitor ${selectedLog.visitor_name}` : 'Visitor Details'}
+        onClose={() => setSelectedLog(null)}
+        sections={[
+          {
+            title: 'Visit',
+            items: (() => {
+              if (!selectedLog) return []
+              const allocation = allocationsById.get(selectedLog.allocation)
+              return [
+                { label: 'Visitor', value: selectedLog.visitor_name },
+                { label: 'ID number', value: selectedLog.id_number },
+                { label: 'Phone', value: selectedLog.phone },
+                { label: 'Check-in', value: selectedLog.check_in },
+                { label: 'Allocation', value: selectedLog.allocation },
+                { label: 'Allocation status', value: allocation?.status ?? '—' },
+                { label: 'Student ID', value: allocation?.student ?? '—' },
+                { label: 'Bed ID', value: allocation?.bed ?? '—' },
+              ]
+            })(),
+          },
+        ]}
+      />
     </AppLayout>
   )
 }

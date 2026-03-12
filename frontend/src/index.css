@@ -156,6 +156,10 @@ tbody tr:hover {
   background: var(--surface-soft);
 }
 
+.row-clickable {
+  cursor: pointer;
+}
+
 pre {
   overflow: auto;
   max-height: 360px;
@@ -435,6 +439,43 @@ pre {
   line-height: 1;
   color: var(--primary);
   font-weight: 700;
+}
+
+.details-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.details-section h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.details-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.details-row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid #edf2f8;
+}
+
+.details-row:last-child {
+  border-bottom: none;
+}
+
+.details-row dt {
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.details-row dd {
+  margin: 0;
+  color: var(--text);
 }
 
 .error {

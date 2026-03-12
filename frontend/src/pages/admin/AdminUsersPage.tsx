@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -12,6 +13,7 @@ export function AdminUsersPage() {
   const qc = useQueryClient()
   const [form, setForm] = useState({ email: '', full_name: '', password: '', role: 'STUDENT' as Role })
   const [openUserModal, setOpenUserModal] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<AuthUser | null>(null)
 
   const users = useQuery({ queryKey: ['admin-users'], queryFn: async () => asList<AuthUser>((await api.get('/users/')).data) })
 
@@ -46,7 +48,12 @@ export function AdminUsersPage() {
           <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr></thead>
           <tbody>
             {users.data?.map((user) => (
-              <tr key={user.id}><td>{user.id}</td><td>{user.full_name}</td><td>{user.email}</td><td>{user.role}</td></tr>
+              <tr key={user.id} className="row-clickable" onClick={() => setSelectedUser(user)}>
+                <td>{user.id}</td>
+                <td>{user.full_name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -84,6 +91,24 @@ export function AdminUsersPage() {
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedUser !== null}
+        title={selectedUser ? selectedUser.full_name : 'User Details'}
+        onClose={() => setSelectedUser(null)}
+        sections={[
+          {
+            title: 'Profile',
+            items: [
+              { label: 'Name', value: selectedUser?.full_name },
+              { label: 'Email', value: selectedUser?.email },
+              { label: 'Phone', value: selectedUser?.phone || '—' },
+              { label: 'Role', value: selectedUser?.role },
+              { label: 'Active', value: selectedUser?.is_active ? 'Yes' : 'No' },
+            ],
+          },
+        ]}
+      />
     </AppLayout>
   )
 }

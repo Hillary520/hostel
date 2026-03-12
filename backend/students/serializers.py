@@ -34,6 +34,9 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         if user_data is None:
             raise serializers.ValidationError({"user": "user or user_id is required"})
 
+        if "registration_status" not in validated_data:
+            validated_data["registration_status"] = StudentProfile.RegistrationStatus.COMPLETE
+
         if isinstance(user_data, User):
             if hasattr(user_data, "student_profile"):
                 raise serializers.ValidationError({"user_id": "user already has a student profile"})

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -20,6 +21,7 @@ export function AdminPaymentsPage() {
   const qc = useQueryClient()
   const [targetInvoiceId, setTargetInvoiceId] = useState<number | null>(null)
   const [nextStatus, setNextStatus] = useState<'PENDING' | 'PAID'>('PENDING')
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRow | null>(null)
 
   const invoices = useQuery({
     queryKey: ['admin-invoices'],
@@ -63,7 +65,7 @@ export function AdminPaymentsPage() {
           <thead><tr><th>Invoice ID</th><th>Student ID</th><th>Term</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
           <tbody>
             {invoices.data?.map((invoice) => (
-              <tr key={invoice.id}>
+              <tr key={invoice.id} className="row-clickable" onClick={() => setSelectedInvoice(invoice)}>
                 <td>{invoice.id}</td>
                 <td>{invoice.student}</td>
                 <td>{invoice.term}</td>
@@ -71,7 +73,14 @@ export function AdminPaymentsPage() {
                 <td>{invoice.due_date}</td>
                 <td>{invoice.status}</td>
                 <td>
-                  <button className="btn btn-ghost" type="button" onClick={() => openStatusModal(invoice)}>
+                  <button
+                    className="btn btn-ghost"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      openStatusModal(invoice)
+                    }}
+                  >
                     Update status
                   </button>
                 </td>
@@ -104,6 +113,25 @@ export function AdminPaymentsPage() {
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedInvoice !== null}
+        title={selectedInvoice ? `Invoice ${selectedInvoice.id}` : 'Invoice Details'}
+        onClose={() => setSelectedInvoice(null)}
+        sections={[
+          {
+            title: 'Invoice',
+            items: [
+              { label: 'Invoice ID', value: selectedInvoice?.id },
+              { label: 'Student ID', value: selectedInvoice?.student },
+              { label: 'Term', value: selectedInvoice?.term },
+              { label: 'Amount', value: selectedInvoice?.amount_due },
+              { label: 'Due date', value: selectedInvoice?.due_date },
+              { label: 'Status', value: selectedInvoice?.status },
+            ],
+          },
+        ]}
+      />
     </AppLayout>
   )
 }

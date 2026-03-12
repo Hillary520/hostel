@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
+import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
@@ -22,6 +23,7 @@ export function StudentComplaintsPage() {
   const [category, setCategory] = useState('General')
   const [priority, setPriority] = useState('MEDIUM')
   const [description, setDescription] = useState('')
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null)
 
   const complaints = useQuery({
     queryKey: ['student-complaints'],
@@ -65,7 +67,7 @@ export function StudentComplaintsPage() {
           <thead><tr><th>ID</th><th>Category</th><th>Priority</th><th>Status</th><th>Description</th><th>Created</th></tr></thead>
           <tbody>
             {complaints.data?.map((ticket) => (
-              <tr key={ticket.id}>
+              <tr key={ticket.id} className="row-clickable" onClick={() => setSelectedComplaint(ticket)}>
                 <td>{ticket.id}</td>
                 <td>{ticket.category}</td>
                 <td>{ticket.priority}</td>
@@ -107,6 +109,25 @@ export function StudentComplaintsPage() {
           </div>
         </form>
       </Modal>
+
+      <DetailsModal
+        open={selectedComplaint !== null}
+        title={selectedComplaint ? `Complaint ${selectedComplaint.id}` : 'Complaint Details'}
+        onClose={() => setSelectedComplaint(null)}
+        sections={[
+          {
+            title: 'Complaint',
+            items: [
+              { label: 'Complaint ID', value: selectedComplaint?.id },
+              { label: 'Category', value: selectedComplaint?.category },
+              { label: 'Priority', value: selectedComplaint?.priority },
+              { label: 'Status', value: selectedComplaint?.status },
+              { label: 'Description', value: selectedComplaint?.description },
+              { label: 'Created at', value: selectedComplaint ? new Date(selectedComplaint.created_at).toLocaleString() : '—' },
+            ],
+          },
+        ]}
+      />
     </AppLayout>
   )
 }

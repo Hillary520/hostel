@@ -1,19 +1,22 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../auth/AuthContext'
 import { homeForRole } from '../components/ProtectedRoute'
 
 export function LoginPage() {
   const { user, login } = useAuth()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
+  const fromPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname
+
   if (user) {
-    return <Navigate to={homeForRole(user.role)} replace />
+    return <Navigate to={fromPath ?? homeForRole(user.role)} replace />
   }
 
   async function handleSubmit(e: FormEvent) {
