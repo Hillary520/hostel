@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 
 import { AppLayout } from '../../components/AppLayout'
 import { api } from '../../lib/api'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 
 interface OccupancyResponse {
   summary: {
@@ -62,106 +64,133 @@ export function AdminReportsPage() {
 
   return (
     <AppLayout title="Reports">
-      <section className="grid-3">
-        <article className="card stat">
-          <h3>Total Allocations</h3>
-          <p>{occSummary?.total_allocations ?? 0}</p>
-        </article>
-        <article className="card stat">
-          <h3>Active Allocations</h3>
-          <p>{occSummary?.active_allocations ?? 0}</p>
-        </article>
-        <article className="card stat">
-          <h3>Pending Check-in</h3>
-          <p>{occSummary?.pending_checkin_allocations ?? 0}</p>
-        </article>
-      </section>
+      <div className="space-y-8">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Allocations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{occSummary?.total_allocations ?? 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active Allocations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{occSummary?.active_allocations ?? 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Check-in</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{occSummary?.pending_checkin_allocations ?? 0}</div>
+            </CardContent>
+          </Card>
+        </section>
 
-      <section className="card">
-        <h3>Occupancy by Hostel</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Hostel</th>
-              <th>Allocated Beds</th>
-            </tr>
-          </thead>
-          <tbody>
-            {occupancy.data?.by_hostel?.map((item) => (
-              <tr key={item.bed__room__hostel__id}>
-                <td>{item.bed__room__hostel__code}</td>
-                <td>{item.bed__room__hostel__name}</td>
-                <td>{item.allocated}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Occupancy by Hostel</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Hostel</TableHead>
+                  <TableHead>Allocated Beds</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {occupancy.data?.by_hostel?.map((item) => (
+                  <TableRow key={item.bed__room__hostel__id}>
+                    <TableCell className="font-medium">{item.bed__room__hostel__code}</TableCell>
+                    <TableCell>{item.bed__room__hostel__name}</TableCell>
+                    <TableCell>{item.allocated}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-      <section className="card">
-        <h3>Finance Summary</h3>
-        <div className="grid-3">
-          <article className="metric-tile">
-            <h3>Total Invoices</h3>
-            <p>{financeSummary?.invoices_count ?? 0}</p>
-          </article>
-          <article className="metric-tile">
-            <h3>Total Due (UGX)</h3>
-            <p>{financeSummary?.total_amount_due ?? 0}</p>
-          </article>
-          <article className="metric-tile">
-            <h3>Defaulters</h3>
-            <p>{defaulters.data?.count ?? 0}</p>
-          </article>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>Count</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {finance.data?.by_status?.map((item) => (
-              <tr key={item.status}>
-                <td>{item.status}</td>
-                <td>{item.count}</td>
-                <td>{item.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Finance Summary</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="p-4 border rounded-xl bg-slate-50/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Invoices</h3>
+                <p className="text-2xl font-bold">{financeSummary?.invoices_count ?? 0}</p>
+              </div>
+              <div className="p-4 border rounded-xl bg-slate-50/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Due (UGX)</h3>
+                <p className="text-2xl font-bold">{financeSummary?.total_amount_due ?? 0}</p>
+              </div>
+              <div className="p-4 border rounded-xl bg-slate-50/50">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Defaulters</h3>
+                <p className="text-2xl font-bold text-destructive">{defaulters.data?.count ?? 0}</p>
+              </div>
+            </div>
+            
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Count</TableHead>
+                  <TableHead>Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {finance.data?.by_status?.map((item) => (
+                  <TableRow key={item.status}>
+                    <TableCell className="font-medium capitalize">{item.status.toLowerCase()}</TableCell>
+                    <TableCell>{item.count}</TableCell>
+                    <TableCell>{item.total}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-      <section className="card">
-        <h3>Defaulters</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Email</th>
-              <th>Term</th>
-              <th>Due Date</th>
-              <th>Amount Due</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {defaulters.data?.results?.map((item) => (
-              <tr key={item.id}>
-                <td>{item.student__full_name}</td>
-                <td>{item.student__email}</td>
-                <td>{item.term}</td>
-                <td>{item.due_date}</td>
-                <td>{item.amount_due}</td>
-                <td>{item.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Defaulters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Term</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Amount Due</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {defaulters.data?.results?.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.student__full_name}</TableCell>
+                    <TableCell>{item.student__email}</TableCell>
+                    <TableCell>{item.term}</TableCell>
+                    <TableCell>{item.due_date}</TableCell>
+                    <TableCell className="text-destructive font-bold">{item.amount_due}</TableCell>
+                    <TableCell>{item.status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
     </AppLayout>
   )
 }

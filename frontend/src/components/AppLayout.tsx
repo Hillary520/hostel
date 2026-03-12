@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { LogOut, Home, Building2 } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
 import { homeForRole } from './ProtectedRoute'
+import { Button } from './ui/button'
 
 interface NavItem {
   label: string
@@ -46,49 +48,74 @@ export function AppLayout({ title, children }: { title: string; children: ReactN
   }
 
   return (
-    <div className="app-shell">
-      <aside className="app-nav">
-        <div className="brand-block">
-          <p className="brand-kicker">University Residence Suite</p>
-          <h1>Hostel Facility Management</h1>
+    <div className="flex h-screen bg-gray-50/50">
+      {/* Sidebar */}
+      <aside className="w-64 flex-shrink-0 flex flex-col bg-white border-r">
+        <div className="p-6 border-b">
+          <div className="flex items-center gap-2 mb-2 text-primary">
+            <Building2 className="w-6 h-6" />
+            <h1 className="font-bold text-lg leading-tight">UnivResidence</h1>
+          </div>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Hostel Management</p>
         </div>
 
-        <nav className="nav-stack">
-          <p className="nav-title">Navigation</p>
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 px-2">Navigation</p>
           {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                }`
+              }
+            >
               {item.label}
             </NavLink>
           ))}
         </nav>
 
-        {user ? (
-          <section className="user-card">
-            <p className="user-name">{user.full_name}</p>
-            <span className="role-pill">{user.role.replace('_', ' ')}</span>
-          </section>
-        ) : null}
+        {user && (
+          <div className="p-4 border-t bg-gray-50">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user.full_name}</p>
+                <p className="text-xs text-gray-500 truncate capitalize">{user.role.replace('_', ' ')}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
 
-      <div className="main-shell">
-        <header className="app-header">
-          <div className="page-title-wrap">
-            <p className="page-title-label">Workspace</p>
-            <h2>{title}</h2>
-          </div>
-          {user ? (
-            <div className="header-actions">
-              <button className="btn btn-ghost" onClick={() => navigate(homeForRole(user.role))}>
-                Home
-              </button>
-              <button className="btn btn-solid" onClick={handleLogout}>
-                Logout
-              </button>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="bg-white border-b flex-shrink-0">
+          <div className="flex items-center justify-between px-8 py-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Workspace</p>
+              <h2 className="text-2xl font-bold text-gray-900 mt-1">{title}</h2>
             </div>
-          ) : null}
+            {user && (
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" onClick={() => navigate(homeForRole(user.role))}>
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+                <Button variant="default" size="sm" onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            )}
+          </div>
         </header>
 
-        <main className="page">{children}</main>
+        <main className="flex-1 overflow-y-auto p-8 max-w-7xl mx-auto w-full">
+          {children}
+        </main>
       </div>
     </div>
   )

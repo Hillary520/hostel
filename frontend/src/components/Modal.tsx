@@ -1,5 +1,10 @@
-import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog"
 
 interface ModalProps {
   open: boolean
@@ -10,34 +15,18 @@ interface ModalProps {
 }
 
 export function Modal({ open, title, onClose, children, width = 'md' }: ModalProps) {
-  useEffect(() => {
-    if (!open) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [open, onClose])
-
-  if (!open) return null
+  const maxWidthClass = width === 'sm' ? 'sm:max-w-[425px]' : width === 'lg' ? 'sm:max-w-[800px]' : 'sm:max-w-[600px]'
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className={`modal-panel modal-${width}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <header className="modal-header">
-          <h3>{title}</h3>
-          <button className="btn btn-ghost modal-close" type="button" onClick={onClose} aria-label="Close dialog">
-            Close
-          </button>
-        </header>
-        <div className="modal-body">{children}</div>
-      </div>
-    </div>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className={maxWidthClass}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">
+          {children}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

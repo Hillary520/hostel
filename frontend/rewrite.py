@@ -1,4 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import sys
+
+new_content = """import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Plus } from 'lucide-react'
@@ -317,3 +319,9 @@ export function AdminRoomsPage() {
     </AppLayout>
   )
 }
+"""
+
+with open('src/pages/admin/AdminRoomsPage.tsx', 'w') as f:
+    f.write(new_content)
+
+print("success")

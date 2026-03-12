@@ -3,6 +3,9 @@ import { useMemo, useState } from 'react'
 
 import { AppLayout } from '../../components/AppLayout'
 import { DetailsModal } from '../../components/DetailsModal'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
+import { Button } from '../../components/ui/button'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
 import type { Allocation } from '../../types'
@@ -55,41 +58,63 @@ export function ManagerAllocationsPage() {
 
   return (
     <AppLayout title="Allocations">
-      <section className="card">
-        <table>
-          <thead><tr><th>ID</th><th>Student</th><th>Bed</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            {allocations.data?.map((allocation) => (
-              <tr key={allocation.id} className="row-clickable" onClick={() => setSelectedAllocation(allocation)}>
-                <td>{allocation.id}</td>
-                <td>{allocation.student}</td>
-                <td>{allocation.bed}</td>
-                <td>{allocation.status}</td>
-                <td>
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      checkInMutation.mutate(allocation.id)
-                    }}
-                    disabled={checkInMutation.isPending}
-                  >
-                    Check-in
-                  </button>
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      vacateMutation.mutate(allocation.id)
-                    }}
-                    disabled={vacateMutation.isPending}
-                  >
-                    Vacate
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Allocations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Student</TableHead>
+                <TableHead>Bed</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allocations.data?.map((allocation) => (
+                <TableRow
+                  key={allocation.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => setSelectedAllocation(allocation)}
+                >
+                  <TableCell>{allocation.id}</TableCell>
+                  <TableCell>{allocation.student}</TableCell>
+                  <TableCell>{allocation.bed}</TableCell>
+                  <TableCell>{allocation.status}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          checkInMutation.mutate(allocation.id)
+                        }}
+                        disabled={checkInMutation.isPending}
+                      >
+                        Check-in
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          vacateMutation.mutate(allocation.id)
+                        }}
+                        disabled={vacateMutation.isPending}
+                      >
+                        Vacate
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <DetailsModal
         open={selectedAllocation !== null}

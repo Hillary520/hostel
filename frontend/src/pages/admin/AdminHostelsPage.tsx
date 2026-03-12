@@ -1,12 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
+import { Plus } from 'lucide-react'
 
 import { AppLayout } from '../../components/AppLayout'
 import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
+import { Button } from '../../components/ui/button'
+import { Card, CardContent } from '../../components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
+import { Input } from '../../components/ui/input'
+import { Label } from '../../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 
 interface Hostel {
   id: number
@@ -90,62 +97,105 @@ export function AdminHostelsPage() {
 
   return (
     <AppLayout title="Hostels">
-      <section className="card section-head">
-        <div>
-          <h3>Hostel Directory</h3>
-          <p>Manage residence blocks and allocation constraints.</p>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl border shadow-sm">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Hostel Directory</h3>
+            <p className="text-sm text-gray-500">Manage residence blocks and allocation constraints.</p>
+          </div>
+          <Button onClick={() => setOpenHostelModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Hostel
+          </Button>
         </div>
-        <button className="btn btn-solid" type="button" onClick={() => setOpenHostelModal(true)}>
-          New Hostel
-        </button>
-      </section>
 
-      <section className="card">
-        <table>
-          <thead><tr><th>ID</th><th>Code</th><th>Name</th><th>Capacity</th><th>Restriction</th></tr></thead>
-          <tbody>
-            {hostels.data?.map((hostel) => (
-              <tr key={hostel.id} className="row-clickable" onClick={() => setSelectedHostel(hostel)}>
-                <td>{hostel.id}</td>
-                <td>{hostel.code}</td>
-                <td>{hostel.name}</td>
-                <td>{hostel.capacity}</td>
-                <td>{hostel.sex_restriction}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Capacity</TableHead>
+                  <TableHead>Restriction</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {hostels.data?.map((hostel) => (
+                  <TableRow 
+                    key={hostel.id} 
+                    className="cursor-pointer hover:bg-slate-50 transition-colors" 
+                    onClick={() => setSelectedHostel(hostel)}
+                  >
+                    <TableCell className="font-medium text-slate-700">{hostel.code}</TableCell>
+                    <TableCell className="font-medium">{hostel.name}</TableCell>
+                    <TableCell>{hostel.capacity} beds</TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground capitalize">
+                        {hostel.sex_restriction.toLowerCase()}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {hostel.active ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800">
+                          Inactive
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!hostels.data?.length && !hostels.isLoading && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                      No hostels found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
 
       <Modal open={openHostelModal} title="Create Hostel" onClose={() => setOpenHostelModal(false)}>
-        <form onSubmit={onSubmit}>
-          <label>
-            Code
-            <input value={code} onChange={(e) => setCode(e.target.value)} />
-          </label>
-          <label>
-            Name
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <label>
-            Capacity
-            <input value={capacity} onChange={(e) => setCapacity(e.target.value)} />
-          </label>
-          <label>
-            Sex restriction
-            <select value={sex} onChange={(e) => setSex(e.target.value)}>
-              <option value="ANY">Any</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-            </select>
-          </label>
-          <div className="modal-actions">
-            <button className="btn btn-ghost" type="button" onClick={() => setOpenHostelModal(false)}>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Code</Label>
+            <Input value={code} onChange={(e) => setCode(e.target.value)} required placeholder="e.g. MDB" />
+          </div>
+          <div className="space-y-2">
+            <Label>Name</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Mandela Block" />
+          </div>
+          <div className="space-y-2">
+            <Label>Capacity</Label>
+            <Input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} required min={1} />
+          </div>
+          <div className="space-y-2">
+            <Label>Sex restriction</Label>
+            <Select value={sex} onValueChange={setSex}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ANY">Any</SelectItem>
+                <SelectItem value="MALE">Male</SelectItem>
+                <SelectItem value="FEMALE">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+            <Button variant="outline" type="button" onClick={() => setOpenHostelModal(false)}>
               Cancel
-            </button>
-            <button className="btn btn-solid" type="submit" disabled={create.isPending}>
-              Save hostel
-            </button>
+            </Button>
+            <Button type="submit" disabled={create.isPending}>
+              {create.isPending ? 'Saving...' : 'Save hostel'}
+            </Button>
           </div>
         </form>
       </Modal>

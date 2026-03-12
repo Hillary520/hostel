@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+with open("src/pages/admin/AdminStudentsPage.tsx", "w") as f:
+    f.write("""import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Plus } from 'lucide-react'
@@ -230,7 +231,7 @@ export function AdminStudentsPage() {
           <div className="space-y-2">
             <Label>Existing student user (optional)</Label>
             <Select
-              value={form.user_id || "none"}
+              value={form.user_id}
               onValueChange={(val) => {
                 const nextUserId = val === "none" ? "" : val
                 setForm((prev) => ({
@@ -370,3 +371,4 @@ export function AdminStudentsPage() {
     </AppLayout>
   )
 }
+""")

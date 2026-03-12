@@ -5,6 +5,12 @@ import type { FormEvent } from 'react'
 import { AppLayout } from '../../components/AppLayout'
 import { DetailsModal } from '../../components/DetailsModal'
 import { Modal } from '../../components/Modal'
+import { Button } from '../../components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Input } from '../../components/ui/input'
+import { Label } from '../../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
 import type { BookingApplication } from '../../types'
@@ -142,99 +148,121 @@ export function ManagerApplicationsPage() {
 
   return (
     <AppLayout title="Applications Review">
-      <section className="card">
-        <h3>Pending Applications</h3>
-        <table>
-          <thead><tr><th>ID</th><th>Student</th><th>Term</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            {applications.data?.map((item) => (
-              <tr key={item.id} className="row-clickable" onClick={() => setSelectedApplication(item)}>
-                <td>{item.id}</td>
-                <td>{item.student}</td>
-                <td>{item.academic_term}</td>
-                <td>{item.status}</td>
-                <td>
-                  <div className="inline-actions">
-                    <button
-                      className="btn btn-solid"
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        setApproveTargetId(item.id)
-                        setRoomId('')
-                        setBedId('')
-                      }}
-                    >
-                      Approve
-                    </button>
-                    <button
-                      className="btn btn-ghost"
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation()
-                        rejectMutation.mutate(item.id)
-                      }}
-                      disabled={rejectMutation.isPending}
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pending Applications</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Student</TableHead>
+                <TableHead>Term</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[200px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {applications.data?.map((item) => (
+                <TableRow
+                  key={item.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => setSelectedApplication(item)}
+                >
+                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.student}</TableCell>
+                  <TableCell>{item.academic_term}</TableCell>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setApproveTargetId(item.id)
+                          setRoomId('')
+                          setBedId('')
+                        }}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          rejectMutation.mutate(item.id)
+                        }}
+                        disabled={rejectMutation.isPending}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <Modal open={approveTargetId !== null} title="Approve Application" onClose={closeApproveModal}>
-        <form onSubmit={onApproveSubmit}>
-          <label>
-            Application ID
-            <input value={targetApplication?.id ?? ''} disabled readOnly />
-          </label>
-          <label>
-            Room
-            <select
-              value={roomId}
-              onChange={(e) => {
-                setRoomId(e.target.value)
-                setBedId('')
-              }}
-            >
-              <option value="">Select a room</option>
-              {roomsWithAvailableBeds.map((room) => (
-                <option key={room.id} value={room.id}>
-                  Room {room.room_no} (ID {room.id})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Bed
-            <select value={bedId} onChange={(e) => setBedId(e.target.value)} disabled={!roomId}>
-              <option value="">Select a bed</option>
-              {bedsForSelectedRoom.map((bed) => (
-                <option key={bed.id} value={bed.id}>
-                  Bed {bed.bed_no} (ID {bed.id})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Check-in Due Date
-            <input type="date" value={checkInDueDate} onChange={(e) => setCheckInDueDate(e.target.value)} />
-          </label>
-          <label>
-            Expected Checkout Date
-            <input type="date" value={expectedCheckoutDate} onChange={(e) => setExpectedCheckoutDate(e.target.value)} />
-          </label>
-          <div className="modal-actions">
-            <button className="btn btn-ghost" type="button" onClick={closeApproveModal}>
+        <form onSubmit={onApproveSubmit} className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label>Application ID</Label>
+            <Input value={targetApplication?.id ?? ''} disabled readOnly />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>Room</Label>
+            <Select value={roomId} onValueChange={(value) => { setRoomId(value); setBedId(''); }}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a room" />
+              </SelectTrigger>
+              <SelectContent>
+                {roomsWithAvailableBeds.map((room) => (
+                  <SelectItem key={room.id} value={room.id.toString()}>
+                    Room {room.room_no} (ID {room.id})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Bed</Label>
+            <Select value={bedId} onValueChange={setBedId} disabled={!roomId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a bed" />
+              </SelectTrigger>
+              <SelectContent>
+                {bedsForSelectedRoom.map((bed) => (
+                  <SelectItem key={bed.id} value={bed.id.toString()}>
+                    Bed {bed.bed_no} (ID {bed.id})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Check-in Due Date</Label>
+            <Input type="date" value={checkInDueDate} onChange={(e) => setCheckInDueDate(e.target.value)} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Expected Checkout Date</Label>
+            <Input type="date" value={expectedCheckoutDate} onChange={(e) => setExpectedCheckoutDate(e.target.value)} />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="ghost" type="button" onClick={closeApproveModal}>
               Cancel
-            </button>
-            <button className="btn btn-solid" type="submit" disabled={!bedId || approveMutation.isPending}>
+            </Button>
+            <Button type="submit" disabled={!bedId || approveMutation.isPending}>
               Approve booking
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
