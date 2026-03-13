@@ -235,7 +235,7 @@ export function AdminStudentsPage() {
                 const nextUserId = val === "none" ? "" : val
                 setForm((prev) => ({
                   ...prev,
-                  user_id: nextUserId,
+                  user_id: nextUserId || "",
                   email: nextUserId ? '' : prev.email,
                   full_name: nextUserId ? '' : prev.full_name,
                   phone: nextUserId ? '' : prev.phone,

@@ -127,7 +127,7 @@ export function StudentComplaintsPage() {
           </div>
           <div className="space-y-2">
             <Label>Priority</Label>
-            <Select value={priority} onValueChange={(v) => setPriority(v)}>
+            <Select value={priority} onValueChange={(v) => setPriority(v || '')}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="LOW">Low</SelectItem>

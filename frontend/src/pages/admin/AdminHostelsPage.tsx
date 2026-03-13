@@ -178,7 +178,7 @@ export function AdminHostelsPage() {
           </div>
           <div className="space-y-2">
             <Label>Sex restriction</Label>
-            <Select value={sex} onValueChange={setSex}>
+            <Select value={sex} onValueChange={(val) => setSex(val || '')}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

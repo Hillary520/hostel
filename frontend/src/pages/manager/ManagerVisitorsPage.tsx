@@ -118,7 +118,7 @@ export function ManagerVisitorsPage() {
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Allocation</Label>
-            <Select value={form.allocation || 'none'} onValueChange={(v) => setForm({ ...form, allocation: v === 'none' ? '' : v })}>
+            <Select value={form.allocation || 'none'} onValueChange={(v) => setForm({ ...form, allocation: v === 'none' ? '' : (v || '') })}>
               <SelectTrigger><SelectValue placeholder="Select allocation" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Select allocation</SelectItem>

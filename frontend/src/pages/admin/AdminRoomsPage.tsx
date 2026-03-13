@@ -9,7 +9,7 @@ import { Modal } from '../../components/Modal'
 import { api } from '../../lib/api'
 import { asList } from '../../lib/apiData'
 import { Button } from '../../components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '../../components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
@@ -193,7 +193,7 @@ export function AdminRoomsPage() {
         <form onSubmit={onCreateRoom} className="space-y-4">
           <div className="space-y-2">
             <Label>Hostel</Label>
-            <Select value={room.hostel} onValueChange={(val) => setRoom({ ...room, hostel: val })}>
+            <Select value={room.hostel} onValueChange={(val) => setRoom({ ...room, hostel: val || "" })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a hostel" />
               </SelectTrigger>
@@ -208,7 +208,7 @@ export function AdminRoomsPage() {
           </div>
           <div className="space-y-2">
             <Label>Room Type</Label>
-            <Select value={room.room_type} onValueChange={(val) => setRoom({ ...room, room_type: val })}>
+            <Select value={room.room_type} onValueChange={(val) => setRoom({ ...room, room_type: val || "" })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a room type" />
               </SelectTrigger>
@@ -251,7 +251,7 @@ export function AdminRoomsPage() {
         <form onSubmit={onCreateBed} className="space-y-4">
           <div className="space-y-2">
             <Label>Room</Label>
-            <Select value={bed.room} onValueChange={(val) => setBed({ ...bed, room: val })}>
+            <Select value={bed.room} onValueChange={(val) => setBed({ ...bed, room: val || "" })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a room" />
               </SelectTrigger>

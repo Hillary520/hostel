@@ -216,7 +216,7 @@ export function ManagerApplicationsPage() {
           
           <div className="space-y-2">
             <Label>Room</Label>
-            <Select value={roomId} onValueChange={(value) => { setRoomId(value); setBedId(''); }}>
+            <Select value={roomId} onValueChange={(value) => { setRoomId(value || ""); setBedId(''); }}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a room" />
               </SelectTrigger>
@@ -232,7 +232,7 @@ export function ManagerApplicationsPage() {
 
           <div className="space-y-2">
             <Label>Bed</Label>
-            <Select value={bedId} onValueChange={setBedId} disabled={!roomId}>
+            <Select value={bedId} onValueChange={(val) => setBedId(val || "")} disabled={!roomId}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a bed" />
               </SelectTrigger>

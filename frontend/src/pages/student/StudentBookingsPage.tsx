@@ -176,7 +176,7 @@ export function StudentBookingsPage() {
           </div>
           <div className="space-y-2">
             <Label>Preferred Hostel</Label>
-            <Select value={preferredHostel || 'any'} onValueChange={(v) => setPreferredHostel(v === 'any' ? '' : v)}>
+            <Select value={preferredHostel || 'any'} onValueChange={(v) => setPreferredHostel(v === 'any' ? '' : (v || ''))}>
               <SelectTrigger><SelectValue placeholder="Any hostel" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any hostel</SelectItem>
