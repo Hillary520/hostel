@@ -189,8 +189,8 @@ export function AdminRoomsPage() {
         </Card>
       </div>
 
-      <Modal open={openRoomModal} title="Create Room" onClose={() => setOpenRoomModal(false)}>
-        <form onSubmit={onCreateRoom} className="space-y-4">
+      <Modal width="lg" open={openRoomModal} title="Create Room" onClose={() => setOpenRoomModal(false)}>
+        <form onSubmit={onCreateRoom} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Hostel</Label>
             <Select value={room.hostel} onValueChange={(val) => setRoom({ ...room, hostel: val || "" })}>
@@ -233,7 +233,7 @@ export function AdminRoomsPage() {
             <Label>Bed Count</Label>
             <Input type="number" value={room.bed_count} onChange={(e) => setRoom({ ...room, bed_count: e.target.value })} required />
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenRoomModal(false)}>
               Cancel
             </Button>
@@ -247,8 +247,8 @@ export function AdminRoomsPage() {
         </form>
       </Modal>
 
-      <Modal open={openBedModal} title="Create Bed" onClose={() => setOpenBedModal(false)}>
-        <form onSubmit={onCreateBed} className="space-y-4">
+      <Modal width="lg" open={openBedModal} title="Create Bed" onClose={() => setOpenBedModal(false)}>
+        <form onSubmit={onCreateBed} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Room</Label>
             <Select value={bed.room} onValueChange={(val) => setBed({ ...bed, room: val || "" })}>
@@ -268,7 +268,7 @@ export function AdminRoomsPage() {
             <Label>Bed Number</Label>
             <Input value={bed.bed_no} onChange={(e) => setBed({ ...bed, bed_no: e.target.value })} required />
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenBedModal(false)}>
               Cancel
             </Button>

@@ -162,8 +162,8 @@ export function AdminHostelsPage() {
         </Card>
       </div>
 
-      <Modal open={openHostelModal} title="Create Hostel" onClose={() => setOpenHostelModal(false)}>
-        <form onSubmit={onSubmit} className="space-y-4">
+      <Modal width="lg" open={openHostelModal} title="Create Hostel" onClose={() => setOpenHostelModal(false)}>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Code</Label>
             <Input value={code} onChange={(e) => setCode(e.target.value)} required placeholder="e.g. MDB" />
@@ -189,7 +189,7 @@ export function AdminHostelsPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenHostelModal(false)}>
               Cancel
             </Button>

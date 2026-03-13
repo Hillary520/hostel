@@ -168,8 +168,8 @@ export function StudentBookingsPage() {
         </Card>
       </div>
 
-      <Modal open={openCreateModal} title="New Accommodation Booking" onClose={() => setOpenCreateModal(false)}>
-        <form onSubmit={handleCreate} className="space-y-4">
+      <Modal width="lg" open={openCreateModal} title="New Accommodation Booking" onClose={() => setOpenCreateModal(false)}>
+        <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="term">Academic Term</Label>
             <Input id="term" value={term} onChange={(e) => setTerm(e.target.value)} placeholder="e.g. 2026-S1" required />
@@ -187,7 +187,7 @@ export function StudentBookingsPage() {
             </Select>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenCreateModal(false)}>Cancel</Button>
             <Button type="submit" disabled={createMutation.isPending}>
               {createMutation.isPending ? 'Creating...' : 'Create Booking'}

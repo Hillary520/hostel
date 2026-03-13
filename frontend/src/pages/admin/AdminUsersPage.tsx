@@ -93,8 +93,8 @@ export function AdminUsersPage() {
         </Card>
       </div>
 
-      <Modal open={openUserModal} title="Create User" onClose={() => setOpenUserModal(false)}>
-        <form onSubmit={onSubmit} className="space-y-4">
+      <Modal width="lg" open={openUserModal} title="Create User" onClose={() => setOpenUserModal(false)}>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Email</Label>
             <Input 
@@ -137,7 +137,7 @@ export function AdminUsersPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenUserModal(false)}>
               Cancel
             </Button>

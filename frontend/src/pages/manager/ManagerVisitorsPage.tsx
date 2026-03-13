@@ -114,8 +114,8 @@ export function ManagerVisitorsPage() {
         </Card>
       </div>
 
-      <Modal open={openVisitorModal} title="Log a Visitor" onClose={() => setOpenVisitorModal(false)}>
-        <form onSubmit={onSubmit} className="space-y-4">
+      <Modal width="lg" open={openVisitorModal} title="Log a Visitor" onClose={() => setOpenVisitorModal(false)}>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Allocation</Label>
             <Select value={form.allocation || 'none'} onValueChange={(v) => setForm({ ...form, allocation: v === 'none' ? '' : (v || '') })}>
@@ -144,7 +144,7 @@ export function ManagerVisitorsPage() {
               <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenVisitorModal(false)}>Cancel</Button>
             <Button type="submit" disabled={create.isPending || !form.allocation}>
               <UserPlus className="w-4 h-4 mr-2" />

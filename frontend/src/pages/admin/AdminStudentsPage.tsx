@@ -225,8 +225,8 @@ export function AdminStudentsPage() {
         </Card>
       </div>
 
-      <Modal open={openModal} title="Create Student" onClose={() => setOpenModal(false)}>
-        <form onSubmit={onSubmit} className="space-y-4">
+      <Modal width="lg" open={openModal} title="Create Student" onClose={() => setOpenModal(false)}>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Existing student user (optional)</Label>
             <Select
@@ -316,7 +316,7 @@ export function AdminStudentsPage() {
             <Label>Guardian phone</Label>
             <Input value={form.guardian_phone} onChange={(e) => setForm({ ...form, guardian_phone: e.target.value })} />
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenModal(false)}>
               Cancel
             </Button>

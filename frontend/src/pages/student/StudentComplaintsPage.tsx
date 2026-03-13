@@ -119,8 +119,8 @@ export function StudentComplaintsPage() {
         </Card>
       </div>
 
-      <Modal open={openComplaintModal} title="Raise a Complaint" onClose={() => setOpenComplaintModal(false)}>
-        <form onSubmit={onSubmit} className="space-y-4">
+      <Modal width="lg" open={openComplaintModal} title="Raise a Complaint" onClose={() => setOpenComplaintModal(false)}>
+        <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Plumbing, Electrical" required />
@@ -148,7 +148,7 @@ export function StudentComplaintsPage() {
               required
             />
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+          <div className="col-span-1 md:col-span-2 flex justify-end gap-3 pt-4 border-t mt-6">
             <Button variant="outline" type="button" onClick={() => setOpenComplaintModal(false)}>Cancel</Button>
             <Button type="submit" disabled={createComplaint.isPending}>
               <AlertTriangle className="w-4 h-4 mr-2" />
